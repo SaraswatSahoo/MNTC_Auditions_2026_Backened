@@ -65,15 +65,18 @@ model Answer {
 
 model AuthToken {
   id         String    @id @default(cuid())
-  studentId  String
+  studentId  String?   // <-- make optional
   type       TokenType
   tokenHash  String
   expiresAt  DateTime
   consumedAt DateTime?
+  email      String?   // <-- add this
 
-  student    Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student    Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   createdAt  DateTime  @default(now())
 
-  @@index([studentId, type])
+  @@index([type])
+  @@index([email, type])
 }
+
