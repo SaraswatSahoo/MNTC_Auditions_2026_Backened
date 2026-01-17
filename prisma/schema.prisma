@@ -16,12 +16,13 @@ enum PreferredCell {
 
 enum TokenType {
   EMAIL_OTP
+  EMAIL_VERIFIED
   PARTICIPATION_SESSION
 }
 
 model Student {
   id                 String          @id @default(cuid())
-  googleSub          String          @unique
+  googleSub          String?          @unique
   name               String
   rollNumber         String
   registrationNumber String
@@ -65,12 +66,13 @@ model Answer {
 
 model AuthToken {
   id         String    @id @default(cuid())
-  studentId  String?   // <-- make optional
+  studentId  String?   // optional now
+  email      String?   // for pre-registration OTPs
+
   type       TokenType
   tokenHash  String
   expiresAt  DateTime
   consumedAt DateTime?
-  email      String?   // <-- add this
 
   student    Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
@@ -79,4 +81,5 @@ model AuthToken {
   @@index([type])
   @@index([email, type])
 }
+
 
