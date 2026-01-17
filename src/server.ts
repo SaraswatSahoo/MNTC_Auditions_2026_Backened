@@ -29,7 +29,9 @@ app.use(
     allowedHeaders: ["Content-Type", "x-participation-token"],
   })
 );
-app.options("*", cors());
+
+// Express v5: do NOT use app.options("*", ...) [web:676]
+app.options(/.*/, cors());
 
 app.use(express.json());
 app.use(cookieParser());
