@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or mysql/sqlite
+  url      = env("DATABASE_URL")
+}
+
+enum PreferredCell {
+  MANAGEMENT
+  DESIGN
+  DEVELOPMENT
+  FINANCE
+}
+
+enum TokenType {
+  EMAIL_OTP
+  PARTICIPATION_SESSION
+}
+
+model Student {
+  id                 String          @id @default(cuid())
+  googleSub          String          @unique
+  name               String
+  rollNumber         String
+  registrationNumber String
+  department         String
+  year               Int
+  collegeEmail       String          @unique
+  preferredCells     PreferredCell[]
+  isEmailVerified    Boolean         @default(false)
+
+  answers            Answer[]
+  tokens             AuthToken[]
+
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  text      String
+  order     Int      @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  answers   Answer[]
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  studentId  String
+  questionId String
+  answer     String
+
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([studentId, questionId]) // one answer per question per student
+}
+
+model AuthToken {
+  id         String    @id @default(cuid())
+  studentId  String
+  type       TokenType
+  tokenHash  String
+  expiresAt  DateTime
+  consumedAt DateTime?
+
+  student    Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime  @default(now())
+
+  @@index([studentId, type])
+}
