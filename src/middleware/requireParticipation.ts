@@ -10,9 +10,15 @@ declare global {
   }
 }
 
-export async function requireParticipation(req: Request, res: Response, next: NextFunction) {
+export async function requireParticipation(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const token = req.header("x-participation-token");
-  if (!token) return res.status(401).json({ error: "Missing participation token" });
+  if (!token) {
+    return res.status(401).json({ error: "Missing participation token" });
+  }
 
   const tokenHash = sha256(token);
   const now = new Date();
@@ -26,7 +32,15 @@ export async function requireParticipation(req: Request, res: Response, next: Ne
     },
   });
 
-  if (!dbToken) return res.status(401).json({ error: "Invalid/expired token" });
+  if (!dbToken) {
+    return res.status(401).json({ error: "Invalid/expired token" });
+  }
+
+  // Prisma optional fields commonly come as string | null, but Express optional is string | undefined.
+  // Convert null -> undefined (or enforce presence).
+  if (!dbToken.studentId) {
+    return res.status(401).json({ error: "Invalid session token" });
+  }
 
   req.studentId = dbToken.studentId;
   return next();
