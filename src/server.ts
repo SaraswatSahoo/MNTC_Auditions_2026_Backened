@@ -410,6 +410,8 @@ app.post("/api/answers", requireParticipation, async (req, res) => {
   return res.json({ ok: true });
 });
 
+app.get("/health", (_req, res) => res.status(200).send("ok"));
+
 async function start() {
   await ensureQuestionsExist();
   app.listen(process.env.PORT || 4000, () => console.log("Server running"));
