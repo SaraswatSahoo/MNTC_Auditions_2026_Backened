@@ -45,8 +45,8 @@ const asyncHandler =
     Promise.resolve(fn(req, res, next)).catch(next);
 
 /**
- * Your Prisma schema has @@unique([studentId, type]) on AuthToken.
- * So we must upsert by that composite key to avoid duplicate conflicts.
+ * Your Prisma schema has @@unique([studentId, type]) on AuthToken,
+ * so create() on every login can fail. Use upsert() by (studentId,type).
  */
 async function issueParticipationSession(studentId: string) {
   const sessionRaw = randomToken64();
@@ -87,8 +87,6 @@ app.get(
   })
 );
 
-// No DB write, no participation token here.
-// Only returns verifiedEmail + emailToken to frontend.
 app.get(
   "/auth/google/callback",
   (req, res, next) => {
@@ -114,8 +112,6 @@ app.get(
     });
 
     const emailToken = signEmailVerificationToken(email);
-
-    // Send user to the right page:
     const targetPath = exists ? "/login" : "/register";
 
     const redirectUrl =
@@ -133,11 +129,9 @@ app.post(
   "/api/register",
   asyncHandler(async (req, res) => {
     const Body = z.object({
-      // must be the google-authenticated email
       email: z.string().email(),
       emailToken: z.string().min(1, "Google verification required"),
 
-      // profile
       name: z.string().min(2),
       rollNumber: z.string().min(1),
       registrationNumber: z.string().min(1),
@@ -147,7 +141,6 @@ app.post(
         .array(z.enum(["MANAGEMENT", "DESIGN", "DEVELOPMENT", "FINANCE"]))
         .min(1),
 
-      // password rules (same as your existing backend)
       password: z
         .string()
         .min(8, "Password must be at least 8 characters")
@@ -183,7 +176,7 @@ app.post(
         registrationNumber: data.registrationNumber,
         department: data.department,
         year: data.year,
-        collegeEmail: email, // keep schema as-is (stores personal email now)
+        collegeEmail: email, // stores personal email now
         preferredCells: data.preferredCells,
         passwordHash,
       },
@@ -263,7 +256,6 @@ app.get(
     });
 
     if (!student) return res.status(401).json({ error: "Invalid session" });
-
     return res.json({ ok: true, student });
   })
 );
@@ -278,7 +270,7 @@ app.post(
     const tokenHash = sha256(token);
 
     await prisma.authToken.updateMany({
-      where: { tokenHash },
+      where: { tokenHash, type: "PARTICIPATION_SESSION" },
       data: { consumedAt: new Date() },
     });
 
