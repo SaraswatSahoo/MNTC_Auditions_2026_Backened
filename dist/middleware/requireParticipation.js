@@ -15,8 +15,9 @@ const crypto_1 = require("../utils/crypto");
 function requireParticipation(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const token = req.header("x-participation-token");
-        if (!token)
+        if (!token) {
             return res.status(401).json({ error: "Missing participation token" });
+        }
         const tokenHash = (0, crypto_1.sha256)(token);
         const now = new Date();
         const dbToken = yield prisma_1.prisma.authToken.findFirst({
@@ -27,8 +28,12 @@ function requireParticipation(req, res, next) {
                 consumedAt: null,
             },
         });
-        if (!dbToken)
+        if (!dbToken) {
             return res.status(401).json({ error: "Invalid/expired token" });
+        }
+        if (!dbToken.studentId) {
+            return res.status(401).json({ error: "Invalid session token" });
+        }
         req.studentId = dbToken.studentId;
         return next();
     });

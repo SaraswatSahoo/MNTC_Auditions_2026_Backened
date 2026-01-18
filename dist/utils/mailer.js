@@ -8,19 +8,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendOtpEmail = sendOtpEmail;
-const resend_1 = require("resend");
-const resend = new resend_1.Resend(process.env.RESEND_API_KEY);
-function sendOtpEmail(to, otp) {
+exports.sendNotificationEmail = sendNotificationEmail;
+const nodemailer_1 = __importDefault(require("nodemailer"));
+const transporter = nodemailer_1.default.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASS,
+    },
+});
+// For future use: send notification emails
+function sendNotificationEmail(to, subject, text) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { error } = yield resend.emails.send({
-            from: process.env.EMAIL_FROM, // e.g. "MNTC Auditions <onboarding@resend.dev>"
-            to: [to],
-            subject: "Your audition verification code",
-            text: `Your verification code is: ${otp}\nThis code expires in 10 minutes.`,
+        yield transporter.sendMail({
+            from: `MNTC Auditions <${process.env.GMAIL_USER}>`,
+            to,
+            subject,
+            text,
         });
-        if (error)
-            throw error;
     });
 }

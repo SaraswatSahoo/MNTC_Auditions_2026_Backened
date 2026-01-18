@@ -19,8 +19,14 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.GOOGLE_CALLBACK_URL,
 }, (_accessToken, _refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const email = ((_b = (_a = profile.emails) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.value) || null;
+    var _a, _b, _c;
+    const email = ((_c = (_b = (_a = profile.emails) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.value) === null || _c === void 0 ? void 0 : _c.toLowerCase()) || null;
+    // ENFORCE domain restriction: only @nitdgp.ac.in accounts [web:742]
+    if (!email || !email.endsWith("@nitdgp.ac.in")) {
+        return done(null, false, {
+            message: "Use your @nitdgp.ac.in account to register",
+        });
+    }
     return done(null, {
         googleSub: profile.id,
         displayName: profile.displayName,

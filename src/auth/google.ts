@@ -11,11 +11,8 @@ passport.use(
     async (_accessToken, _refreshToken, profile, done) => {
       const email = profile.emails?.[0]?.value?.toLowerCase() || null;
 
-      // ENFORCE domain restriction: only @nitdgp.ac.in accounts [web:742]
-      if (!email || !email.endsWith("@nitdgp.ac.in")) {
-        return done(null, false, {
-          message: "Use your @nitdgp.ac.in account to register",
-        });
+      if (!email) {
+        return done(null, false, { message: "Could not read email from Google" });
       }
 
       return done(null, {
