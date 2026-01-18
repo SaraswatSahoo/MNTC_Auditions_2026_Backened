@@ -5,16 +5,17 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.GMAIL_USER!,      // mntc.auditions.2026@gmail.com
-    pass: process.env.GMAIL_APP_PASS!,  // 16-char app password
+    user: process.env.GMAIL_USER!,
+    pass: process.env.GMAIL_APP_PASS!,
   },
 });
 
-export async function sendOtpEmail(to: string, otp: string) {
+// For future use: send notification emails
+export async function sendNotificationEmail(to: string, subject: string, text: string) {
   await transporter.sendMail({
     from: `MNTC Auditions <${process.env.GMAIL_USER!}>`,
     to,
-    subject: "Your audition verification code",
-    text: `Your verification code is: ${otp}\nThis code expires in 10 minutes.`,
+    subject,
+    text,
   });
 }

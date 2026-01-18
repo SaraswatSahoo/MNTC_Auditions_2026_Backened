@@ -36,8 +36,6 @@ export async function requireParticipation(
     return res.status(401).json({ error: "Invalid/expired token" });
   }
 
-  // Prisma optional fields commonly come as string | null, but Express optional is string | undefined.
-  // Convert null -> undefined (or enforce presence).
   if (!dbToken.studentId) {
     return res.status(401).json({ error: "Invalid session token" });
   }

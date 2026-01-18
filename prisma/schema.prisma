@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // or mysql/sqlite
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -15,14 +15,11 @@ enum PreferredCell {
 }
 
 enum TokenType {
-  EMAIL_OTP
-  EMAIL_VERIFIED
   PARTICIPATION_SESSION
 }
 
 model Student {
   id                 String          @id @default(cuid())
-  googleSub          String?          @unique
   name               String
   rollNumber         String
   registrationNumber String
@@ -30,7 +27,9 @@ model Student {
   year               Int
   collegeEmail       String          @unique
   preferredCells     PreferredCell[]
-  isEmailVerified    Boolean         @default(false)
+
+  passwordHash       String
+  hasSubmitted       Boolean         @default(false)
 
   answers            Answer[]
   tokens             AuthToken[]
@@ -61,25 +60,21 @@ model Answer {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@unique([studentId, questionId]) // one answer per question per student
+  @@unique([studentId, questionId])
 }
 
 model AuthToken {
   id         String    @id @default(cuid())
-  studentId  String?   // optional now
-  email      String?   // for pre-registration OTPs
-
+  studentId  String
   type       TokenType
   tokenHash  String
   expiresAt  DateTime
   consumedAt DateTime?
 
-  student    Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student    Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   createdAt  DateTime  @default(now())
 
+  @@unique([studentId, type])
   @@index([type])
-  @@index([email, type])
 }
-
-
