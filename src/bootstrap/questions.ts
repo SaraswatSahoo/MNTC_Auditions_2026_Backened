@@ -2,11 +2,11 @@ import { prisma } from "../prisma";
 
 const QUESTIONS = [
     { order: 1, text: "Why do you want to join MNTC?" },
-    { order: 2, text: "Why should MNTC choose you?" },
-    { order: 3, text: "Do you have any special quality or skill?" },
-    { order: 4, text: "What is your biggest plus point?" },
-    { order: 5, text: "What is one drawback you have, and how are you working on it?" },
-    { order: 6, text: "Any additional notes or links (GitHub/Portfolio)?" },
+    { order: 2, text: "What unique skills or talents can you bring to MNTC?" },
+    { order: 3, text: "What does leadership mean to you?" },
+    { order: 4, text: "Share an idea or event which  you think MNTC should conduct." },
+    { order: 5, text: "How would you handle a disagreement within the team?" },
+    { order: 6, text: "What are your club preferences?" },
 ] as const;
 
 export async function ensureQuestionsExist() {
