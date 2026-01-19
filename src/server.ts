@@ -137,6 +137,7 @@ app.post(
       registrationNumber: z.string().min(1),
       department: z.string().min(1),
       year: z.number().int().min(1).max(6),
+      phoneNumber: z.string().min(10).max(10),
       preferredCells: z
         .array(z.enum(["MANAGEMENT", "DESIGN", "DEVELOPMENT", "FINANCE"]))
         .min(1),
@@ -178,6 +179,7 @@ app.post(
         year: data.year,
         collegeEmail: email, // stores personal email now
         preferredCells: data.preferredCells,
+        phoneNumber: data.phoneNumber,
         passwordHash,
       },
       select: { id: true },

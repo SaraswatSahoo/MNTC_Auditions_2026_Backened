@@ -25,6 +25,7 @@ model Student {
   registrationNumber String
   department         String
   year               Int
+  phoneNumber        String
   collegeEmail       String          @unique
   preferredCells     PreferredCell[]
 
